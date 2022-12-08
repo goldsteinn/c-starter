@@ -110,7 +110,6 @@ namer(bench)(uint32_t         test_size,
     mkeys = keys + test_size * 2;
     PRINTFFL;
 
-
     PRINTFFL;
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(insert_and_grow, _, test_name));
@@ -132,7 +131,6 @@ namer(bench)(uint32_t         test_size,
         ++cur_times;
     }
     namer(deinit)(&tbl);
-
     namer(prefetch_keys)(keys, test_size);
 
     cur_times     = results->times;
@@ -159,7 +157,6 @@ namer(bench)(uint32_t         test_size,
     }
     PRINTFFL;
 
-
     PRINTFFL;
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(insert_full, _, test_name));
@@ -176,7 +173,6 @@ namer(bench)(uint32_t         test_size,
         ++cur_times;
     }
 
-
     PRINTFFL;
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_hit_full, _, test_name));
@@ -192,7 +188,6 @@ namer(bench)(uint32_t         test_size,
         *cur_times = get_ll_dif(end, start);
         ++cur_times;
     }
-
     PRINTFFL;
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_hit_used, _, test_name));
@@ -211,7 +206,6 @@ namer(bench)(uint32_t         test_size,
         *cur_times = get_ll_dif(end, start);
         ++cur_times;
     }
-
     PRINTFFL;
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_must_hit, _, test_name));
@@ -228,7 +222,6 @@ namer(bench)(uint32_t         test_size,
         ++cur_times;
     }
 
-
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_miss_full, _, test_name));
     results->size = test_size;
@@ -243,7 +236,6 @@ namer(bench)(uint32_t         test_size,
         *cur_times = get_ll_dif(end, start);
         ++cur_times;
     }
-
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_miss_used, _, test_name));
     results->size = test_size;
@@ -261,7 +253,6 @@ namer(bench)(uint32_t         test_size,
         *cur_times = get_ll_dif(end, start);
         ++cur_times;
     }
-
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_mixed_full, _, test_name));
     results->size = test_size;
@@ -276,7 +267,6 @@ namer(bench)(uint32_t         test_size,
         *cur_times = get_ll_dif(end, start);
         ++cur_times;
     }
-
     cur_times     = results->times;
     results->name = V_TO_STR(CAT(find_mixed_used, _, test_name));
     results->size = test_size;
@@ -297,7 +287,6 @@ namer(bench)(uint32_t         test_size,
     }
 
     namer(deinit)(&tbl);
-
 
     PRINTFFL;
     namer(init_sz)(&tbl, 1);

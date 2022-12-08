@@ -97,6 +97,7 @@ enum {
 #include "hashtable.bench.h"
 
 #define run_bench(name)                                                        \
+    vvvprint("Running -> [%6u/%4u]: %s\n", trials, i, V_TO_STR(name));         \
     (results = I_hl_namer(name, bench)(i, ht_type_size, trials, results));
 
 
@@ -105,7 +106,7 @@ void *
 bench_hashtable(void * bench_args) {
     uint32_t trials = (uint32_t)(uint64_t)bench_args;
     enum {
-        k_nruns       = (k_test_size_max_log2 + PP_NARG(names)) * k_nbenches,
+        k_nruns       = (k_test_size_max_log2 * PP_NARG(names)) * k_nbenches,
         k_ntrial_runs = CAST(size_t, k_nruns * k_trials),
         k_alloc_size0 = k_nruns * sizeof(bench_result_t),
         k_alloc_size1 = k_ntrial_runs * sizeof(uint64_t)
@@ -123,8 +124,15 @@ bench_hashtable(void * bench_args) {
     uint32_t i;
 
     if (trials == 0) {
-        trials = k_trials;
+        if (!ht_test_size) {
+            trials = 10;
+        }
+        else {
+            trials = k_trials;
+        }
     }
+
+
     die_assert(trials <= k_trials);
     results = (bench_result_t *)safe_zalloc(k_alloc_size0);
     times   = (uint64_t *)safe_zalloc(k_alloc_size1);
@@ -132,7 +140,6 @@ bench_hashtable(void * bench_args) {
     results_start = results;
     results_free  = results_start;
     times_start   = times;
-
     for (i = 0; i < k_nruns; ++i) {
         results[i].times = times;
         times += k_trials;
@@ -145,9 +152,11 @@ bench_hashtable(void * bench_args) {
     }
     else {
         for (i = 32; i < k_test_size_max; i += i) {
+            vvprint("Testing -> [%6u/%4u]\n", i, trials);
             APPLY(run_bench, ;, names);
         }
     }
+
     {
         char lastc = '\0';
         for (; results_start < results; ++results_start) {
