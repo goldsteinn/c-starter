@@ -1,4 +1,4 @@
-#include "hl-defs.h"
+#include "cl-defs.h"
 #include "hl-user-defs.h"
 
 /********************************************************************/
@@ -7,14 +7,14 @@
 # define rh_tunable_max_lookup_log2 4
 #endif
 
-#define rh_namer(name) I_hl_namer(hl_name, name)
+#define rh_namer(name) I_cl_namer(hl_name, name)
 
 /********************************************************************/
 /* Initial checks on free fits.  */
-I_hl_static_assert(I_hl_sizeof_bits(hl_key_t) > (hl_spare_key_bits),
+I_cl_static_assert(I_cl_sizeof_bits(hl_key_t) > (hl_spare_key_bits),
                    "Invalid number of free bits");
 
-I_hl_static_assert(1 || (I_hl_sizeof_bits(hl_key_t) - hl_spare_key_bits) >= 8,
+I_cl_static_assert(1 || (I_cl_sizeof_bits(hl_key_t) - hl_spare_key_bits) >= 8,
                    "This is not the proper usage of a hashtable");
 
 
@@ -23,18 +23,18 @@ I_hl_static_assert(1 || (I_hl_sizeof_bits(hl_key_t) - hl_spare_key_bits) >= 8,
 
 
 #define K_rh_key_bits_req                                                      \
-    (I_hl_sizeof_bits(hl_key_t) - (hl_spare_key_bits) + K_rh_max_lookup_log2)
+    (I_cl_sizeof_bits(hl_key_t) - (hl_spare_key_bits) + K_rh_max_lookup_log2)
 
-I_hl_static_assert(K_rh_key_bits_req <= I_hl_sizeof_bits(void *));
+I_cl_static_assert(K_rh_key_bits_req <= I_cl_sizeof_bits(void *));
 
 #define rh_key_plus_meta_type                                                  \
-    I_hl_choose_T(                                                             \
+    I_cl_choose_T(                                                             \
         K_rh_key_bits_req <= 16,                                               \
-        I_hl_choose_T(K_rh_key_bits_req <= 8, I_hl_byte_t, I_hl_word_t),       \
-        I_hl_choose_T(K_rh_key_bits_req <= 32, I_hl_long_t, I_hl_quad_t))
+        I_cl_choose_T(K_rh_key_bits_req <= 8, I_cl_byte_t, I_cl_word_t),       \
+        I_cl_choose_T(K_rh_key_bits_req <= 32, I_cl_long_t, I_cl_quad_t))
 
 
-I_hl_static_assert(1 || (hl_spare_key_bits)*2 <= I_hl_sizeof_bits(hl_key_t));
+I_cl_static_assert(1 || (hl_spare_key_bits)*2 <= I_cl_sizeof_bits(hl_key_t));
 
 
 /********************************************************************/
@@ -71,7 +71,7 @@ rh_namer(kvp_t);
 
 #define K_rh_meta_inplace 1
 #include "rh-table-types.h"
-I_hl_static_assert(rh_key_is_entry || hl_use_as_map || !hl_null_key_invalid);
+I_cl_static_assert(rh_key_is_entry || hl_use_as_map || !hl_null_key_invalid);
 
 typedef rh_kvp_t * rh_namer(tbl_ptr_t);
 #define rh_tbl_ptr_t rh_namer(tbl_ptr_t)
@@ -95,15 +95,15 @@ rh_namer(table_t);
 /********************************************************************/
 /* Setup constants for remainder.  */
 
-I_hl_static_assert(sizeof(rh_kvp_t) <= sizeof(void *), "KVP size to large");
-I_hl_static_assert(sizeof(rh_kvp_t) <= sizeof(void *),
+I_cl_static_assert(sizeof(rh_kvp_t) <= sizeof(void *), "KVP size to large");
+I_cl_static_assert(sizeof(rh_kvp_t) <= sizeof(void *),
                    "Meta + KVP size to large");
 
-I_hl_static_assert(sizeof(rh_kvp_t) + 2 >= sizeof(rh_kvp_t),
+I_cl_static_assert(sizeof(rh_kvp_t) + 2 >= sizeof(rh_kvp_t),
                    "Too much overhead for set to be worth it");
 
 #define K_rh_true_spare_key_bits                                               \
-    ((I_hl_sizeof_bits(rh_mkey_t) - I_hl_sizeof_bits(hl_key_t)) +              \
+    ((I_cl_sizeof_bits(rh_mkey_t) - I_cl_sizeof_bits(hl_key_t)) +              \
      (hl_spare_key_bits))
 
 
@@ -114,7 +114,7 @@ I_hl_static_assert(sizeof(rh_kvp_t) + 2 >= sizeof(rh_kvp_t),
              ? (K_rh_max_lookup_log2 + 1)                                      \
              : K_rh_max_lookup_log2)
 
-I_hl_static_assert(K_rh_spare_key_bits_def >= (K_rh_max_lookup_log2));
+I_cl_static_assert(K_rh_spare_key_bits_def >= (K_rh_max_lookup_log2));
 # define K_rh_meta_is_subtype_def 0
 # define K_rh_meta_is_signed_end_def                                           \
         ((K_rh_spare_key_bits_def == (K_rh_max_lookup_log2 + 1)) &&            \
@@ -150,36 +150,36 @@ enum { rh_namer(meta_is_subtype) = K_rh_meta_is_subtype_def };
 enum { rh_namer(meta_is_signed_end) = K_rh_meta_is_signed_end_def };
 #define K_rh_meta_is_signed_end rh_namer(meta_is_signed_end)
 
-I_hl_static_assert(K_rh_meta_is_signed_end ? !K_rh_key_upper : 1);
+I_cl_static_assert(K_rh_meta_is_signed_end ? !K_rh_key_upper : 1);
 
 
-I_hl_static_assert(K_rh_spare_key_bits < I_hl_sizeof_bits(rh_mkey_t));
-I_hl_static_assert(sizeof(rh_mkey_t) >= sizeof(hl_key_t));
+I_cl_static_assert(K_rh_spare_key_bits < I_cl_sizeof_bits(rh_mkey_t));
+I_cl_static_assert(sizeof(rh_mkey_t) >= sizeof(hl_key_t));
 
 
-#define K_rh_key_bits  (I_hl_sizeof_bits(rh_mkey_t) - K_rh_spare_key_bits)
+#define K_rh_key_bits  (I_cl_sizeof_bits(rh_mkey_t) - K_rh_spare_key_bits)
 #define K_rh_meta_bits (K_rh_spare_key_bits)
 
-I_hl_static_assert(K_rh_meta_bits <= 32);
-I_hl_static_assert(K_rh_meta_bits >= K_rh_max_lookup_log2);
+I_cl_static_assert(K_rh_meta_bits <= 32);
+I_cl_static_assert(K_rh_meta_bits >= K_rh_max_lookup_log2);
 
 
 #if hl_trivial_compare
 # define K_rh_meta_hash_bits 0
-I_hl_static_assert(!K_rh_key_upper);
+I_cl_static_assert(!K_rh_key_upper);
 #else
 # define K_rh_meta_hash_bits (K_rh_meta_bits - K_rh_max_lookup_log2)
 # define K_rh_meta_hash_shift                                                  \
-        (I_hl_sizeof_bits(hl_obj_size_t) - K_rh_meta_hash_bits)
+        (I_cl_sizeof_bits(hl_obj_size_t) - K_rh_meta_hash_bits)
 
 # define K_rh_meta_hash_mask      (((1UL << K_rh_meta_hash_bits) - 1))
 # define K_rh_meta_init_hash_mask (K_rh_meta_hash_mask << K_rh_key_bits)
 
-I_hl_static_assert(K_rh_key_upper || K_rh_meta_init_hash_mask < (1UL << 32));
+I_cl_static_assert(K_rh_key_upper || K_rh_meta_init_hash_mask < (1UL << 32));
 #endif
 
-I_hl_static_assert(K_rh_key_bits < I_hl_sizeof_bits(void *));
-I_hl_static_assert(K_rh_meta_bits < I_hl_sizeof_bits(void *));
+I_cl_static_assert(K_rh_key_bits < I_cl_sizeof_bits(void *));
+I_cl_static_assert(K_rh_meta_bits < I_cl_sizeof_bits(void *));
 
 
 #define K_rh_key_is_subtype                                                    \
@@ -189,20 +189,20 @@ I_hl_static_assert(K_rh_meta_bits < I_hl_sizeof_bits(void *));
 #define K_rh_cmp_meta_inplace (!K_rh_key_upper || K_rh_meta_is_subtype)
 
 
-typedef I_hl_as_member_type(rh_mkey_t, val_) rh_namer(mkey_uint_t);
+typedef I_cl_as_member_type(rh_mkey_t, val_) rh_namer(mkey_uint_t);
 #define rh_mkey_uint_t rh_namer(mkey_uint_t)
 
-I_hl_static_assert(hl_trivial_compare ? !K_rh_meta_is_subtype : 1);
+I_cl_static_assert(hl_trivial_compare ? !K_rh_meta_is_subtype : 1);
 #define rh_metav_best_type                                                     \
-    I_hl_choose_T(K_rh_meta_is_subtype, I_hl_uint_for_bits(K_rh_meta_bits),    \
+    I_cl_choose_T(K_rh_meta_is_subtype, I_cl_uint_for_bits(K_rh_meta_bits),    \
                   rh_mkey_uint_t)
 
 #define rh_metav_best_tmp_type                                                 \
-    I_hl_choose_T(sizeof(rh_metav_best_type) <= sizeof(uint32_t), uint32_t,    \
+    I_cl_choose_T(sizeof(rh_metav_best_type) <= sizeof(uint32_t), uint32_t,    \
                   uint64_t)
 
 #define rh_keyv_best_type                                                      \
-    I_hl_choose_T(K_rh_key_is_subtype, I_hl_uint_for_bits(K_rh_key_bits),      \
+    I_cl_choose_T(K_rh_key_is_subtype, I_cl_uint_for_bits(K_rh_key_bits),      \
                   rh_mkey_uint_t)
 
 
@@ -215,7 +215,7 @@ typedef rh_metav_best_tmp_type rh_namer(metav_tmp_t);
 typedef rh_keyv_best_type rh_namer(keyv_t);
 #define rh_keyv_t rh_namer(keyv_t)
 
-I_hl_static_assert(sizeof(rh_mkey_uint_t) >= sizeof(hl_key_t));
+I_cl_static_assert(sizeof(rh_mkey_uint_t) >= sizeof(hl_key_t));
 
 #define K_rh_meta_mask                                                         \
     (((1UL << K_rh_meta_bits) - 1) << (K_rh_key_upper ? 0 : K_rh_key_bits))
@@ -223,84 +223,84 @@ I_hl_static_assert(sizeof(rh_mkey_uint_t) >= sizeof(hl_key_t));
 
 #define K_rh_meta_distance_incr_def                                            \
     (K_rh_key_upper ? (1UL << K_rh_meta_hash_bits)                             \
-                    : (1UL << (I_hl_sizeof_bits(rh_mkey_t) -                   \
+                    : (1UL << (I_cl_sizeof_bits(rh_mkey_t) -                   \
                                (K_rh_meta_bits - K_rh_meta_hash_bits))))
 
 
 /* Allow enum exceeding int capacity.  */
-#if I_hl_USING_LLVM
+#if I_cl_USING_LLVM
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wpedantic"
 #endif
 enum { rh_namer(meta_distance_incr) = K_rh_meta_distance_incr_def };
-#if I_hl_USING_LLVM
+#if I_cl_USING_LLVM
 # pragma clang diagnostic pop
 #endif
 #define K_rh_meta_distance_incr rh_namer(meta_distance_incr)
 
 
-I_hl_static_assert(K_rh_meta_distance_incr == (K_rh_meta_distance_incr_def));
+I_cl_static_assert(K_rh_meta_distance_incr == (K_rh_meta_distance_incr_def));
 
 #define K_rh_meta_max_def                                                      \
-    I_hl_p2_m(K_rh_key_upper                                                   \
+    I_cl_p2_m(K_rh_key_upper                                                   \
                   ? (K_rh_max_lookup_log2 + K_rh_meta_hash_bits)               \
-                  : I_hl_sizeof_bits(rh_mkey_t) - K_rh_has_spare_meta_bit,     \
+                  : I_cl_sizeof_bits(rh_mkey_t) - K_rh_has_spare_meta_bit,     \
               K_rh_meta_distance_incr)
 
 /* Allow enum exceeding int capacity.  */
-#if I_hl_USING_LLVM
+#if I_cl_USING_LLVM
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wpedantic"
 #endif
 enum { rh_namer(meta_max) = K_rh_meta_max_def };
-#if I_hl_USING_LLVM
+#if I_cl_USING_LLVM
 # pragma clang diagnostic pop
 #endif
 #define K_rh_meta_max rh_namer(meta_max)
-I_hl_static_assert(K_rh_meta_max == (K_rh_meta_max_def));
+I_cl_static_assert(K_rh_meta_max == (K_rh_meta_max_def));
 
 #define K_rh_default_size (64)
 
-#if I_hl_USING_LLVM
+#if I_cl_USING_LLVM
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wpedantic"
 #endif
-I_hl_assert_const_eval(K_rh_cmp_meta_inplace);
-I_hl_assert_const_eval(K_rh_default_size);
-I_hl_assert_const_eval(K_rh_has_spare_meta_bit);
-I_hl_assert_const_eval(K_rh_key_bits);
-I_hl_assert_const_eval(K_rh_key_bits_req);
-I_hl_assert_const_eval(K_rh_key_is_subtype);
-I_hl_assert_const_eval(K_rh_key_mask);
-I_hl_assert_const_eval(K_rh_key_upper);
-I_hl_assert_const_eval(K_rh_key_upper_def);
-I_hl_assert_const_eval(K_rh_max_lookup);
-I_hl_assert_const_eval(K_rh_max_lookup_log2);
-I_hl_assert_const_eval(K_rh_meta_bits);
-I_hl_assert_const_eval(K_rh_meta_distance_incr);
-I_hl_assert_const_eval(K_rh_meta_distance_incr_def);
-I_hl_assert_const_eval(K_rh_meta_hash_bits);
+I_cl_assert_const_eval(K_rh_cmp_meta_inplace);
+I_cl_assert_const_eval(K_rh_default_size);
+I_cl_assert_const_eval(K_rh_has_spare_meta_bit);
+I_cl_assert_const_eval(K_rh_key_bits);
+I_cl_assert_const_eval(K_rh_key_bits_req);
+I_cl_assert_const_eval(K_rh_key_is_subtype);
+I_cl_assert_const_eval(K_rh_key_mask);
+I_cl_assert_const_eval(K_rh_key_upper);
+I_cl_assert_const_eval(K_rh_key_upper_def);
+I_cl_assert_const_eval(K_rh_max_lookup);
+I_cl_assert_const_eval(K_rh_max_lookup_log2);
+I_cl_assert_const_eval(K_rh_meta_bits);
+I_cl_assert_const_eval(K_rh_meta_distance_incr);
+I_cl_assert_const_eval(K_rh_meta_distance_incr_def);
+I_cl_assert_const_eval(K_rh_meta_hash_bits);
 #ifdef K_rh_meta_hash_mask
-I_hl_assert_const_eval(K_rh_meta_hash_mask);
+I_cl_assert_const_eval(K_rh_meta_hash_mask);
 #endif
 #ifdef K_rh_meta_hash_shift
-I_hl_assert_const_eval(K_rh_meta_hash_shift);
+I_cl_assert_const_eval(K_rh_meta_hash_shift);
 #endif
 #ifdef K_rh_meta_init_hash_mask
-I_hl_assert_const_eval(K_rh_meta_init_hash_mask);
+I_cl_assert_const_eval(K_rh_meta_init_hash_mask);
 #endif
-I_hl_assert_const_eval(K_rh_meta_inplace);
-I_hl_assert_const_eval(K_rh_meta_is_signed_end);
-I_hl_assert_const_eval(K_rh_meta_is_signed_end_def);
-I_hl_assert_const_eval(K_rh_meta_is_subtype);
-I_hl_assert_const_eval(K_rh_meta_is_subtype_def);
-I_hl_assert_const_eval(K_rh_meta_mask);
-I_hl_assert_const_eval(K_rh_meta_max);
-I_hl_assert_const_eval(K_rh_meta_max_def);
-I_hl_assert_const_eval(K_rh_spare_key_bits);
-I_hl_assert_const_eval(K_rh_spare_key_bits_def);
-I_hl_assert_const_eval(K_rh_true_spare_key_bits);
-#if I_hl_USING_LLVM
+I_cl_assert_const_eval(K_rh_meta_inplace);
+I_cl_assert_const_eval(K_rh_meta_is_signed_end);
+I_cl_assert_const_eval(K_rh_meta_is_signed_end_def);
+I_cl_assert_const_eval(K_rh_meta_is_subtype);
+I_cl_assert_const_eval(K_rh_meta_is_subtype_def);
+I_cl_assert_const_eval(K_rh_meta_mask);
+I_cl_assert_const_eval(K_rh_meta_max);
+I_cl_assert_const_eval(K_rh_meta_max_def);
+I_cl_assert_const_eval(K_rh_spare_key_bits);
+I_cl_assert_const_eval(K_rh_spare_key_bits_def);
+I_cl_assert_const_eval(K_rh_true_spare_key_bits);
+#if I_cl_USING_LLVM
 # pragma clang diagnostic pop
 #endif
 
@@ -317,7 +317,7 @@ I_hl_assert_const_eval(K_rh_true_spare_key_bits);
 #define rh_check_mkey_at_end_plus_one rh_namer(check_mkey_at_end_plus_one)
 #define rh_finish_combine_meta        rh_namer(finish_combine_meta)
 
-I_hl_cattrs hl_key_t
+I_cl_cattrs hl_key_t
 rh_mkey_get_key(rh_mkey_t mkey) {
     if (K_rh_key_upper) {
         return (hl_key_t)(mkey.val_ >> K_rh_meta_bits);
@@ -327,9 +327,9 @@ rh_mkey_get_key(rh_mkey_t mkey) {
     }
 }
 
-I_hl_cattrs I_hl_bool_t
+I_cl_cattrs I_cl_bool_t
 rh_mkey_meta_lt(rh_metav_tmp_t lhsv, rh_mkey_t rhs) {
-    rh_metav_t lhs = I_hl_CAST(rh_metav_t, lhsv);
+    rh_metav_t lhs = I_cl_CAST(rh_metav_t, lhsv);
 #if hl_trivial_compare
     return lhs < rhs.val_;
 #else
@@ -346,21 +346,21 @@ rh_mkey_meta_lt(rh_metav_tmp_t lhsv, rh_mkey_t rhs) {
 #endif
 }
 
-I_hl_cattrs I_hl_bool_t
+I_cl_cattrs I_cl_bool_t
 rh_mkey_meta_eq(rh_metav_tmp_t lhsv, rh_mkey_t rhs) {
-    rh_metav_t lhs = I_hl_CAST(rh_metav_t, lhsv);
+    rh_metav_t lhs = I_cl_CAST(rh_metav_t, lhsv);
 #if hl_trivial_compare
-    I_hl_static_assert(sizeof(lhsv) >= sizeof(lhs));
+    I_cl_static_assert(sizeof(lhsv) >= sizeof(lhs));
     return lhs == rhs.val_;
 #else
-    I_hl_static_assert(K_rh_meta_mask < (1UL << 32));
+    I_cl_static_assert(K_rh_meta_mask < (1UL << 32));
     return lhs == (rhs.val_ & K_rh_meta_mask);
 #endif
 }
 
 
-I_hl_pattrs I_hl_bool_t
-rh_mkey_eq(I_hl_dconst hl_pass_key_t pk,
+I_cl_pattrs I_cl_bool_t
+rh_mkey_eq(I_cl_dconst hl_pass_key_t pk,
            const rh_mkey_t           rhs,
            const hl_hashret_t        hr) {
 #if hl_trivial_compare
@@ -374,15 +374,15 @@ rh_mkey_eq(I_hl_dconst hl_pass_key_t pk,
 #endif
 }
 
-I_hl_cattrs I_hl_bool_t
+I_cl_cattrs I_cl_bool_t
 rh_mkey_empty(const rh_mkey_t mkey) {
     return mkey.val_ == 0;
 }
 
 
-I_hl_cattrs rh_mkey_t
+I_cl_cattrs rh_mkey_t
 rh_mkey_finalize_meta(rh_mkey_t mkey, hl_key_t key, rh_metav_tmp_t metav) {
-    rh_mkey_uint_t meta = I_hl_CAST(rh_mkey_uint_t, metav);
+    rh_mkey_uint_t meta = I_cl_CAST(rh_mkey_uint_t, metav);
 #if hl_trivial_compare
     (void)(key);
     mkey.val_ = meta;
@@ -398,11 +398,11 @@ rh_mkey_finalize_meta(rh_mkey_t mkey, hl_key_t key, rh_metav_tmp_t metav) {
     return mkey;
 }
 
-I_hl_cattrs I_hl_bool_t
+I_cl_cattrs I_cl_bool_t
 rh_check_meta_at_end(rh_metav_tmp_t metav) {
-    rh_metav_t meta = I_hl_CAST(rh_metav_t, metav);
+    rh_metav_t meta = I_cl_CAST(rh_metav_t, metav);
     if (K_rh_meta_is_signed_end) {
-        return (meta & (1UL << (I_hl_sizeof_bits(rh_metav_t) - 1))) ? 1 : 0;
+        return (meta & (1UL << (I_cl_sizeof_bits(rh_metav_t) - 1))) ? 1 : 0;
     }
     else {
         return meta >= (K_rh_meta_max - 1 * K_rh_meta_distance_incr);
@@ -410,11 +410,11 @@ rh_check_meta_at_end(rh_metav_tmp_t metav) {
 }
 
 
-I_hl_cattrs I_hl_bool_t
+I_cl_cattrs I_cl_bool_t
 rh_check_mkey_at_end_plus_one(rh_mkey_t mkey) {
 #if hl_trivial_compare
     if (K_rh_meta_is_signed_end) {
-        return (mkey.val_ & (1UL << (I_hl_sizeof_bits(rh_mkey_t) - 1))) ? 1 : 0;
+        return (mkey.val_ & (1UL << (I_cl_sizeof_bits(rh_mkey_t) - 1))) ? 1 : 0;
     }
     else {
         return mkey.val_ >= (K_rh_meta_max - 2 * K_rh_meta_distance_incr);
@@ -426,9 +426,9 @@ rh_check_mkey_at_end_plus_one(rh_mkey_t mkey) {
 }
 
 
-I_hl_cattrs rh_mkey_uint_t
+I_cl_cattrs rh_mkey_uint_t
 rh_finish_combine_meta(rh_metav_tmp_t metav, rh_mkey_uint_t key) {
-    rh_mkey_uint_t meta = I_hl_CAST(rh_mkey_uint_t, metav);
+    rh_mkey_uint_t meta = I_cl_CAST(rh_mkey_uint_t, metav);
 #if hl_trivial_compare
     (void)(key);
     return meta;
@@ -452,23 +452,23 @@ rh_finish_combine_meta(rh_metav_tmp_t metav, rh_mkey_uint_t key) {
 #define rh_init_meta      rh_namer(init_meta)
 #define rh_get_kvps_start rh_namer(get_kvps_start)
 
-I_hl_cattrs rh_metav_tmp_t
+I_cl_cattrs rh_metav_tmp_t
 rh_init_meta(hl_obj_size_t hash_val, rh_mkey_uint_t key) {
     rh_metav_tmp_t metav;
 #if hl_trivial_compare
     (void)(hash_val);
     metav = key;
     {
-        I_hl_static_assert(!K_rh_key_upper);
-        I_hl_static_assert(sizeof(metav) >= sizeof(key));
+        I_cl_static_assert(!K_rh_key_upper);
+        I_cl_static_assert(sizeof(metav) >= sizeof(key));
     }
 #else
     (void)(key);
     if (K_rh_key_upper) {
-        I_hl_static_assert(K_rh_meta_hash_bits == 0 ||
+        I_cl_static_assert(K_rh_meta_hash_bits == 0 ||
                            (K_rh_meta_hash_shift < sizeof_bits(hash_val)));
         metav = K_rh_meta_hash_bits
-                    ? I_hl_CAST(
+                    ? I_cl_CAST(
                           rh_metav_tmp_t,
                           (hash_val) >>
                               (K_rh_meta_hash_bits ? K_rh_meta_hash_shift : 0))
@@ -476,13 +476,13 @@ rh_init_meta(hl_obj_size_t hash_val, rh_mkey_uint_t key) {
     }
     else {
         metav =
-            I_hl_CAST(rh_metav_tmp_t, (hash_val) & (K_rh_meta_init_hash_mask));
+            I_cl_CAST(rh_metav_tmp_t, (hash_val) & (K_rh_meta_init_hash_mask));
     }
 #endif
     return metav + K_rh_meta_distance_incr;
 }
 
-I_hl_cattrs rh_kvp_t *
+I_cl_cattrs rh_kvp_t *
 rh_get_kvps_start(rh_kvp_t *    p,
                   hl_obj_size_t mask_and_size,
                   hl_obj_size_t hash_val) {
@@ -499,12 +499,12 @@ rh_get_kvps_start(rh_kvp_t *    p,
 #define rh_insert             rh_namer(insert)
 
 
-I_hl_attrs rh_insert_ret_t
+I_cl_attrs rh_insert_ret_t
 rh_insert_at(rh_kvp_t *                   kvps,
              rh_metav_tmp_t               metav,
              rh_mkey_uint_t               key,
-             I_hl_dconst hl_pass_key_t pk I_hl_unused,
-             const hl_hashret_t hr        I_hl_unused) {
+             I_cl_dconst hl_pass_key_t pk I_cl_unused,
+             const hl_hashret_t hr        I_cl_unused) {
     rh_mkey_t      mkey;
     rh_mkey_uint_t meta;
     hl_kvp_set_prepare(pk, hr);
@@ -520,7 +520,7 @@ rh_insert_at(rh_kvp_t *                   kvps,
     return rh_insert_make_success_return(key, mkey, kvps);
 }
 
-I_hl_attrs I_hl_bool_t
+I_cl_attrs I_cl_bool_t
 rh_shift_indexes(rh_kvp_t * restrict kvps) {
     rh_kvp_t * restrict kvps_place = kvps;
     ++kvps;
@@ -530,26 +530,26 @@ rh_shift_indexes(rh_kvp_t * restrict kvps) {
         if (rh_mkey_empty(mkey)) {
             break;
         }
-        if (I_hl_unlikely(rh_check_mkey_at_end_plus_one(mkey))) {
+        if (I_cl_unlikely(rh_check_mkey_at_end_plus_one(mkey))) {
             return 1;
         }
 
         ++kvps;
     }
 
-    I_hl_guarantee(kvps > kvps_place);
-    for (; I_hl_unlikely(kvps > kvps_place); --kvps) {
+    I_cl_guarantee(kvps > kvps_place);
+    for (; I_cl_unlikely(kvps > kvps_place); --kvps) {
         rh_kvp_t kvp = *(kvps - 1);
 
         kvp.mkey_.val_ += K_rh_meta_distance_incr;
         *kvps = kvp;
         __asm__ volatile("" : : :);
     }
-    I_hl_guarantee(kvps == kvps_place);
+    I_cl_guarantee(kvps == kvps_place);
     return 0;
 }
 
-I_hl_attrs void
+I_cl_attrs void
 rh_insert_no_conflict(rh_kvp_t *     kvps,
                       hl_key_t       key,
                       rh_metav_tmp_t metav,
@@ -566,13 +566,13 @@ rh_insert_no_conflict(rh_kvp_t *     kvps,
         do {
             ++kvps;
         } while (!rh_mkey_empty(kvps->mkey_));
-        I_hl_guarantee(kvps > place_kvp);
-        for (; I_hl_unlikely(kvps > place_kvp); --kvps) {
+        I_cl_guarantee(kvps > place_kvp);
+        for (; I_cl_unlikely(kvps > place_kvp); --kvps) {
             rh_kvp_t kvp = *(kvps - 1);
             kvp.mkey_.val_ += K_rh_meta_distance_incr;
             *kvps = kvp;
         }
-        I_hl_guarantee(kvps == place_kvp);
+        I_cl_guarantee(kvps == place_kvp);
     }
 
     reinsert_kvp.mkey_ = rh_mkey_finalize_meta(reinsert_kvp.mkey_, key, metav);
@@ -580,9 +580,9 @@ rh_insert_no_conflict(rh_kvp_t *     kvps,
 }
 
 #if !(hl_conf_fixed_size)
-static I_hl_noinline rh_insert_ret_t
+static I_cl_noinline rh_insert_ret_t
 rh_resize(rh_table_t *              rh_tbl,
-          I_hl_dconst hl_pass_key_t pk,
+          I_cl_dconst hl_pass_key_t pk,
           const hl_hashret_t        hr) {
     rh_kvp_t *      next_table;
     rh_insert_ret_t ret;
@@ -595,16 +595,16 @@ rh_resize(rh_table_t *              rh_tbl,
     (void)(pk);
     (void)(hr);
 super_unlikely_retry:
-    I_hl_unused;
+    I_cl_unused;
 
 
     {
         next_table =
             rh_alloc_table(rh_mask_and_size_get_alloc_sz(next_mask_and_size));
         /* The only true error case we can have. */
-        if (I_hl_unlikely(next_table == 0UL)) {
+        if (I_cl_unlikely(next_table == 0UL)) {
             rh_on_error("Allocation error");
-            return rh_internal_insert_make_return(hl_operation_failure,
+            return rh_internal_insert_make_return(cl_operation_failure,
                                                   rh_invalid_return_entry);
         }
     }
@@ -616,15 +616,15 @@ super_unlikely_retry:
             old_kvps     = rh_tbl->p_;
             old_kvps_end = old_kvps + rh_mask_and_size_get_cap(mask_and_size);
         }
-        I_hl_guarantee(old_kvps < old_kvps_end);
+        I_cl_guarantee(old_kvps < old_kvps_end);
         for (; old_kvps < old_kvps_end; ++old_kvps) {
             rh_kvp_t existing_kvp = *old_kvps;
-            if (I_hl_likely(!rh_mkey_empty(existing_kvp.mkey_))) {
+            if (I_cl_likely(!rh_mkey_empty(existing_kvp.mkey_))) {
                 hl_key_t       key      = rh_mkey_get_key(existing_kvp.mkey_);
                 hl_obj_size_t  hash_val = hl_rehash(key);
                 rh_metav_tmp_t metav =
-                    rh_init_meta(hash_val, I_hl_CAST(rh_mkey_uint_t, key));
-                I_hl_static_assert(sizeof(hl_key_t) <= sizeof(rh_mkey_uint_t));
+                    rh_init_meta(hash_val, I_cl_CAST(rh_mkey_uint_t, key));
+                I_cl_static_assert(sizeof(hl_key_t) <= sizeof(rh_mkey_uint_t));
 
 
                 rh_kvp_t * insert_kvps =
@@ -643,7 +643,7 @@ super_unlikely_retry:
         rh_metav_tmp_t metav;
 
         rh_kvp_t * kvps;
-        key  = I_hl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk));
+        key  = I_cl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk, hr));
         kvps = rh_get_kvps_start(next_table, next_mask_and_size, hash_val);
 
         metav = rh_init_meta(hash_val, key);
@@ -653,7 +653,7 @@ super_unlikely_retry:
         }
 
 # if hl_conf_robust_resize
-        if (I_hl_unlikely(rh_check_meta_at_end(metav) ||
+        if (I_cl_unlikely(rh_check_meta_at_end(metav) ||
                           (!rh_mkey_empty(existing_mkey) &&
                            (rh_check_mkey_at_end_plus_one(existing_mkey) ||
                             rh_shift_indexes(kvps))))) {
@@ -663,9 +663,9 @@ super_unlikely_retry:
 
 
 #  if hl_conf_retry_max
-            if (I_hl_unlikely(retry_counter >= (hl_conf_retry_max))) {
+            if (I_cl_unlikely(retry_counter >= (hl_conf_retry_max))) {
                 rh_on_error("Unable to resize table");
-                return rh_internal_insert_make_return(hl_operation_failure,
+                return rh_internal_insert_make_return(cl_operation_failure,
                                                       rh_invalid_return_entry);
             }
             ++retry_counter;
@@ -689,7 +689,7 @@ super_unlikely_retry:
 #endif
 
 static rh_insert_ret_t
-rh_insert(rh_table_t * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
+rh_insert(rh_table_t * restrict rh_tbl, I_cl_dconst hl_pass_key_t pk) {
     rh_kvp_t *     kvps;
     rh_mkey_uint_t key;
     rh_metav_tmp_t metav;
@@ -698,12 +698,12 @@ rh_insert(rh_table_t * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
     hl_hashret_t  hr       = hl_hash(pk);
     hl_obj_size_t hash_val = hl_hashret_get_hashval(hr);
 
-    key = I_hl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk));
+    key = I_cl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk, hr));
     {
         kvps = rh_get_kvps_start(rh_tbl->p_, rh_tbl_get_mask_and_size(rh_tbl),
                                  hash_val);
 
-        I_hl_prefetch(kvps);
+        I_cl_prefetch(kvps);
         metav = rh_init_meta(hash_val, key);
     }
 
@@ -713,8 +713,8 @@ rh_insert(rh_table_t * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
         ++kvps;
     }
 
-    while (I_hl_unlikely(rh_mkey_meta_eq(metav, existing_mkey))) {
-        if (I_hl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
+    while (I_cl_unlikely(rh_mkey_meta_eq(metav, existing_mkey))) {
+        if (I_cl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
             return rh_insert_make_fail_return(key, existing_mkey, kvps);
         }
         metav += K_rh_meta_distance_incr;
@@ -722,12 +722,12 @@ rh_insert(rh_table_t * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
         existing_mkey = kvps->mkey_;
     }
 
-    if (I_hl_unlikely(rh_check_meta_at_end(metav))) {
+    if (I_cl_unlikely(rh_check_meta_at_end(metav))) {
         return rh_resize(rh_tbl, pk, hr);
     }
 
     if (!rh_mkey_empty(existing_mkey)) {
-        if (I_hl_unlikely(rh_check_mkey_at_end_plus_one(existing_mkey) ||
+        if (I_cl_unlikely(rh_check_mkey_at_end_plus_one(existing_mkey) ||
                           rh_shift_indexes(kvps))) {
             return rh_resize(rh_tbl, pk, hr);
         }
@@ -741,8 +741,8 @@ rh_insert(rh_table_t * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
 #define rh_find_exists      rh_namer(find_exists)
 #define rh_find_exists_impl rh_namer(find_exists_impl)
 
-static I_hl_pure rh_find_ret_t
-rh_find(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
+static I_cl_pure rh_find_ret_t
+rh_find(rh_table_t const * restrict rh_tbl, I_cl_dconst hl_pass_key_t pk) {
     rh_kvp_t *     kvps;
     rh_mkey_uint_t key;
     rh_metav_tmp_t metav;
@@ -751,12 +751,12 @@ rh_find(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
     hl_hashret_t  hr       = hl_hash(pk);
     hl_obj_size_t hash_val = hl_hashret_get_hashval(hr);
 
-    key = I_hl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk));
+    key = I_cl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk, hr));
     {
         kvps = rh_get_kvps_start(rh_tbl->p_, rh_tbl_get_mask_and_size(rh_tbl),
                                  hash_val);
 
-        I_hl_prefetch(kvps);
+        I_cl_prefetch(kvps);
         metav = rh_init_meta(hash_val, key);
     }
 
@@ -766,8 +766,8 @@ rh_find(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
         ++kvps;
     }
 
-    while (I_hl_likely(rh_mkey_meta_eq(metav, existing_mkey))) {
-        if (I_hl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
+    while (I_cl_likely(rh_mkey_meta_eq(metav, existing_mkey))) {
+        if (I_cl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
             return rh_get_valid_success_entry(key, existing_mkey, kvps);
         }
         metav += K_rh_meta_distance_incr;
@@ -777,15 +777,15 @@ rh_find(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
 
     /* Avoid generating cmovcc.  */
 #if hl_conf_predict_fret
-    I_hl_no_cmov();
+    I_cl_no_cmov();
 #endif
     return rh_invalid_return_entry;
 }
 
 
-static I_hl_pure rh_find_ret_t
+static I_cl_pure rh_find_ret_t
 rh_find_exists_impl(rh_table_t const * restrict rh_tbl,
-                    I_hl_dconst hl_pass_key_t pk) {
+                    I_cl_dconst hl_pass_key_t pk) {
     rh_kvp_t *     kvps;
     rh_mkey_uint_t key;
     rh_metav_tmp_t metav;
@@ -794,12 +794,12 @@ rh_find_exists_impl(rh_table_t const * restrict rh_tbl,
     hl_hashret_t  hr       = hl_hash(pk);
     hl_obj_size_t hash_val = hl_hashret_get_hashval(hr);
 
-    key = I_hl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk));
+    key = I_cl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk, hr));
     {
         kvps = rh_get_kvps_start(rh_tbl->p_, rh_tbl_get_mask_and_size(rh_tbl),
                                  hash_val);
 
-        I_hl_prefetch(kvps);
+        I_cl_prefetch(kvps);
         metav = rh_init_meta(hash_val, key);
     }
 
@@ -809,8 +809,8 @@ rh_find_exists_impl(rh_table_t const * restrict rh_tbl,
         ++kvps;
     }
 
-    while (I_hl_likely(rh_mkey_meta_eq(metav, existing_mkey))) {
-        if (I_hl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
+    while (I_cl_likely(rh_mkey_meta_eq(metav, existing_mkey))) {
+        if (I_cl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
             return rh_get_valid_success_entry(key, existing_mkey, kvps);
         }
         metav += K_rh_meta_distance_incr;
@@ -820,12 +820,12 @@ rh_find_exists_impl(rh_table_t const * restrict rh_tbl,
 
     rh_unreachable();
 }
-I_hl_pattrs rh_find_ret_t
+I_cl_pattrs rh_find_ret_t
 rh_find_exists(rh_table_t const * restrict rh_tbl,
-               I_hl_dconst hl_pass_key_t pk) {
+               I_cl_dconst hl_pass_key_t pk) {
     rh_find_ret_t fret = rh_find_exists_impl(rh_tbl, pk);
     if (rh_fret_fail(fret)) {
-        I_hl_unreachable();
+        I_cl_unreachable();
     }
     return fret;
 }
@@ -834,7 +834,7 @@ rh_find_exists(rh_table_t const * restrict rh_tbl,
 /* Erase API.  */
 #define rh_erase rh_namer(erase)
 static rh_erase_ret_t
-rh_erase(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
+rh_erase(rh_table_t const * restrict rh_tbl, I_cl_dconst hl_pass_key_t pk) {
     rh_kvp_t *     kvps;
     rh_mkey_uint_t key;
     rh_metav_tmp_t metav;
@@ -843,12 +843,12 @@ rh_erase(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
     hl_hashret_t  hr       = hl_hash(pk);
     hl_obj_size_t hash_val = hl_hashret_get_hashval(hr);
 
-    key = I_hl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk));
+    key = I_cl_CAST(rh_mkey_uint_t, hl_pass_key_extract_key(pk, hr));
     {
         kvps = rh_get_kvps_start(rh_tbl->p_, rh_tbl_get_mask_and_size(rh_tbl),
                                  hash_val);
 
-        I_hl_prefetch(kvps);
+        I_cl_prefetch(kvps);
         metav = rh_init_meta(hash_val, key);
     }
 
@@ -860,14 +860,14 @@ rh_erase(rh_table_t const * restrict rh_tbl, I_hl_dconst hl_pass_key_t pk) {
 
     if (rh_mkey_meta_eq(metav, existing_mkey)) {
         do {
-            if (I_hl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
+            if (I_cl_likely(rh_mkey_eq(pk, existing_mkey, hr))) {
 #if hl_erase_return_copy
                 rh_erase_ret_t ret =
                     rh_erase_make_success_return(key, existing_mkey, kvps);
 #endif
                 rh_kvp_t existing_kvp;
                 hl_kvp_destroy(kvps);
-                while (I_hl_unlikely(
+                while (I_cl_unlikely(
                     rh_mkey_meta_lt(K_rh_meta_distance_incr * 2 - 1,
                                     (existing_kvp = *(kvps + 1)).mkey_))) {
 

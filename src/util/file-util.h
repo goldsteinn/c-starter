@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #include "util/common.h"
-#include "util/macro.h"
 #include "util/error-util.h"
+#include "util/macro.h"
 /* fd operations. */
 #define file_exists(...) CAT(I_file_exists, PP_NARG(__VA_ARGS__))(__VA_ARGS__)
 #define safe_open(...)   CAT(safe_open, PP_NARG(__VA_ARGS__))(__VA_ARGS__)
@@ -68,7 +68,11 @@
 #define safe_fd_size(fd)   I_safe_fd_size(fd, I_ERR_ARGS)
 #define safe_file_size(fd) I_safe_file_size(path, I_ERR_ARGS)
 #define safe_fp_size(fp)   I_safe_fp_size(fp, I_ERR_ARGS)
-
+#define safe_memfd_create(name, flags)                                         \
+    I_safe_memfd_create(name, flags, I_ERR_ARGS)
+#define safe_ftruncate(fd, sz)  I_safe_ftruncate(fd, sz, I_ERR_ARGS)
+#define safe_truncate(path, sz) I_safe_truncate(path, sz, I_ERR_ARGS)
+#define safe_anon_file(sz)      I_safe_anon_file(sz, I_ERR_ARGS)
 /* Declarataions. */
 
 int32_t NONNULL(1, 3, 4) I_safe_open2(char const * restrict path,
@@ -275,16 +279,41 @@ NONNULL(1, 2, 3, 4, 5) I_safe_readfile(char const * restrict path,
     return ret;
 }
 
+int32_t I_safe_memfd_create(char const * restrict name,
+                            uint32_t flags,
+                            char const * restrict fn,
+                            char const * restrict func,
+                            uint32_t ln);
+
+void I_safe_ftruncate(int32_t  fd,
+                      uint64_t sz,
+                      char const * restrict fn,
+                      char const * restrict func,
+                      uint32_t ln);
+void I_safe_truncate(char const * restrict name,
+                     uint64_t sz,
+                     char const * restrict fn,
+                     char const * restrict func,
+                     uint32_t ln);
 
 
-static bool
+static bool_t
 I_file_exists2(char const * path, int32_t mode) {
     return access(path, mode) == 0;
 }
 
-static bool
+static bool_t
 I_file_exists1(char const * path) {
     return I_file_exists2(path, 0);
 }
 
+static int32_t
+I_safe_anon_file(uint64_t sz,
+                 char const * restrict fn,
+                 char const * restrict func,
+                 uint32_t ln) {
+    int32_t tmpfd = I_safe_memfd_create("anon", 0, fn, func, ln);
+    I_safe_ftruncate(tmpfd, sz, fn, func, ln);
+    return tmpfd;
+}
 #endif

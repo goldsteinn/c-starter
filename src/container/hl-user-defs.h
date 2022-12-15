@@ -10,7 +10,7 @@
 /* Val type. Default -> Error.  */
 # undef hl_val_t
 
-/* Type that key will be passed if. Default -> hl_key_t.  */
+/* Type that key will be passed in. Default -> hl_key_t.  */
 # undef hl_pass_key_t
 
 /* hl_hashret_t hl_hash(hl_pass_key_t pk); Default -> Error.  */
@@ -53,7 +53,8 @@
 
 
 /*
- * rh_key_t hl_pass_key_extract_key(const hl_pass_key_t pk);
+ * rh_key_t hl_pass_key_extract_key(const hl_pass_key_t pk, 
+ *                                  hl_hashret_t hr);
  *
  * Get the true key type from pass key.
  *
@@ -69,7 +70,7 @@
  *   -> EQ   : False
  *   -> NEQ  : True
  *
- * Default -> hl_memcmp_eq(&tbl_key, &pk);
+ * Default -> I_cl_memcmp_eq(&tbl_key, &pk);
  */
 # undef hl_key_eq
 
@@ -80,7 +81,7 @@
  * void hl_kvp_move(hl_kvp_t * restrict next_tbl_kvp_ptr,
  *                  hl_kvp_t const * restrict old_tbl_kvp_ptr);
  *
- * Default -> I_hl_memcpy(next_tbl_kvp_ptr,
+ * Default -> I_cl_memcpy(next_tbl_kvp_ptr,
  *                         old_tbl_kvp_ptr,
  *                         sizeof(hl_kvp_t));
  */
@@ -278,7 +279,7 @@
 # endif
 
 # ifndef hl_obj_size_t
-#  define hl_obj_size_t I_hl_obj_size_t
+#  define hl_obj_size_t I_cl_obj_size_t
 # endif
 
 # ifndef hl_spare_key_bits
@@ -307,7 +308,7 @@
 
 
 # ifndef hl_pass_key_extract_key
-#  define hl_pass_key_extract_key(pk) (pk)
+#  define hl_pass_key_extract_key(pk, hr) (pk)
 # endif
 
 # ifndef hl_key_eq
@@ -343,7 +344,7 @@
 
 
 # ifndef hl_hashret_t
-#  define hl_hashret_t I_hl_obj_size_t
+#  define hl_hashret_t I_cl_obj_size_t
 # endif
 
 # ifndef hl_hashret_get_hashval
@@ -355,16 +356,16 @@
 # endif
 
 # ifndef hl_memset
-#  define hl_memset(...) I_hl_memset(__VA_ARGS__)
+#  define hl_memset(...) I_cl_memset(__VA_ARGS__)
 # endif
 
 # ifndef hl_memcpy
-#  define hl_memcpy(...) I_hl_memcpy(__VA_ARGS__)
+#  define hl_memcpy(...) I_cl_memcpy(__VA_ARGS__)
 # endif
 
 # ifndef hl_memcmp_eq
 #  define hl_memcmp_eq(p0, p1, sz)                                             \
-            I_hl_memcmp_eq((const uint8_t * restrict)(p0),                    \
+            I_cl_memcmp_eq((const uint8_t * restrict)(p0),                    \
                             (const uint8_t * restrict)(p1), (sz))
 # endif
 

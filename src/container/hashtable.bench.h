@@ -10,7 +10,7 @@
 
 #include HASHTABLE_H
 
-#define namer(name) I_hl_namer(test_name, name)
+#define namer(name) I_cl_namer(test_name, name)
 
 const_assert(sizeof(test_key_t) == sizeof(namer(kvp_t)));
 

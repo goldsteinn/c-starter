@@ -443,3 +443,38 @@ I_safe_fd_readfile(int fd,
     return CAST(uint64_t,
                 I_ensure_read(fd, (uint8_t *)lbuf, fsize, fn, func, ln));
 }
+
+int32_t
+I_safe_memfd_create(char const * restrict name,
+                    uint32_t flags,
+                    char const * restrict fn,
+                    char const * restrict func,
+                    uint32_t ln) {
+    int32_t fd = memfd_create(name, flags);
+    if (UNLIKELY(fd < 0)) {
+        I_errdie(fn, func, ln, NULL, errno, NULL);
+    }
+    return fd;
+}
+
+void
+I_safe_ftruncate(int32_t  fd,
+                 uint64_t sz,
+                 char const * restrict fn,
+                 char const * restrict func,
+                 uint32_t ln) {
+
+    if (UNLIKELY(ftruncate(fd, (int64_t)sz) != 0)) {
+        I_errdie(fn, func, ln, NULL, errno, NULL);
+    }
+}
+void
+I_safe_truncate(char const * name,
+                uint64_t     sz,
+                char const * restrict fn,
+                char const * restrict func,
+                uint32_t ln) {
+    if (UNLIKELY(truncate(name, (int64_t)sz) != 0)) {
+        I_errdie(fn, func, ln, NULL, errno, NULL);
+    }
+}

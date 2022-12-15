@@ -131,7 +131,7 @@ typedef struct I_test_bytes32 {
 
 
 /* Just check everything compiles and its all const eval. */
-APPLY(check_safe_T, ;, ALL_INT_NAMES, bool);
+APPLY(check_safe_T, ;, ALL_INT_NAMES, bool_t);
 APPLY(check_generic, ;, ALL_TYPE_NAMES);
 APPLY(check_float_invariants, ;, ALL_UNIQUE_FLOAT_TYPES);
 APPLY(check_int_invariants, ;, ALL_UNIQUE_INT_TYPES);

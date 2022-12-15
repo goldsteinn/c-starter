@@ -62,11 +62,31 @@
 # define test_val_base_t test_val_t
 #endif
 
+#ifdef test_pass_key_t
+# define hl_pass_key_t test_pass_key_t
+#endif
+#ifdef test_rehash
+# define hl_rehash test_rehash
+#endif
+
+#ifdef test_pass_key_extract_key
+# define hl_pass_key_extract_key test_pass_key_extract_key
+#endif
+
+#ifdef test_hashret_t
+# define hl_hashret_t test_hashret_t
+#endif
+
+#ifdef test_hashret_get_hashval
+# define hl_hashret_get_hashval test_hashret_get_hashval
+#endif
+
+
 /* Just for debug.  */
 #define hl_conf_die_on_unreachable 1
 #include HASHTABLE_H
 
-#define test_namer(name) I_hl_namer(test_name, name)
+#define test_namer(name) I_cl_namer(test_name, name)
 
 
 #define test_table_t  test_namer(table_t)
@@ -117,22 +137,35 @@
 # define NL  // NEVER_INLINE
 #endif
 
+#ifndef test_string
+# define test_string 0
+#endif
+
+#ifndef HAS_STR_STRUCT
+# define HAS_STR_STRUCT
+
+typedef struct tstr {
+    uint32_t slen;
+    char *   s;
+} tstr_t;
+#endif
+
 static NL int32_t
 test_namer(test_init)(void) {
     test_table_t tbl;
     uint32_t     i;
     vprint("Running: " V_TO_STR(test_namer(test_init)) " -> %u\n", k_test_size);
-    test_assert(test_init(&tbl) == hl_operation_success);
+    test_assert(test_init(&tbl) == cl_operation_success);
     test_deinit(&tbl);
     for (i = 0; i <= (1 << 12); ++i) {
         vvprint("\tTest Size: %u\n", i);
-        test_assert(test_init_sz(&tbl, i) == hl_operation_success);
+        test_assert(test_init_sz(&tbl, i) == cl_operation_success);
         test_assert(test_capacity(&tbl) >= i);
         test_deinit(&tbl);
     }
     for (; i < k_test_size; i += i) {
         vvprint("\tTest Size: %u\n", i);
-        test_assert(test_init_sz(&tbl, i) == hl_operation_success);
+        test_assert(test_init_sz(&tbl, i) == cl_operation_success);
         test_assert(test_capacity(&tbl) >= i);
         test_deinit(&tbl);
     }
@@ -143,6 +176,13 @@ static NL void
 test_namer(deinit_kvps)(test_key_base_t * keys,
                         test_key_base_t * keys_dup,
                         test_val_base_t * vals) {
+#if test_string
+    uint32_t i;
+    for (i = 0; i < k_test_size; ++i) {
+        safe_sfree(keys[i].s, keys[i].slen + 1);
+        safe_sfree(keys_dup[i].s, keys_dup[i].slen + 1);
+    }
+#endif
     die_assert(keys && vals && keys_dup);
 
     safe_sfree(keys, k_test_size * 2 * sizeof(test_key_base_t));
@@ -160,16 +200,45 @@ test_namer(init_kvps)(test_key_base_t ** keys_out,
         (test_val_base_t *)safe_malloc(k_test_size * sizeof(test_val_base_t));
     uint32_t * rindexes = make_true_rand32_buffer(k_test_size);
     uint32_t   i;
-    die_assert(keys_out && vals_out && keys_dup_out);
 
+#if test_string
+    uint16_t * lens = make_true_rand16_buffer(k_test_size);
+
+    die_assert(keys_out && vals_out && keys_dup_out);
+    for (i = 0; i < k_test_size; ++i) {
+        uint32_t len  = lens[i] & 0xff;
+        uint32_t todo = lens[i] & 0xf00;
+        char *   s;
+        uint32_t j;
+        uint64_t setb;
+        if (todo < 4) {
+            len <<= (4 - todo);
+        }
+        len += 8;
+        s      = (char *)safe_malloc(len + 1);
+        s[len] = 0;
+
+        setb = i;
+        setb |= (setb << 32);
+        setb |= 0x55555555aaaaaaaa;
+        for (j = 0; j + 8 < len; j += 8) {
+            memcpy(s + j, &setb, 8);
+        }
+        memcpy(s + len - 8, &setb, 8);
+
+        keys[i] = (tstr_t){ len, s };
+    }
+
+#else
+    die_assert(keys_out && vals_out && keys_dup_out);
     for (i = 0; i < k_test_size; ++i) {
         size_t   j;
         uint32_t iv = k_test_size + i;
         uint32_t ik = i;
-#ifdef test_skip_zero_key
+# ifdef test_skip_zero_key
         ik += 1;
         { const_assert(sizeof(test_key_base_t) > 2); }
-#endif
+# endif
 
         {
             const_assert(sizeof(iv) == sizeof(ik) &&
@@ -205,13 +274,26 @@ test_namer(init_kvps)(test_key_base_t ** keys_out,
                              &iv, sizeof(iv));
         }
     }
-    for (i = 0; 0 && i < k_test_size * 2; ++i) {
+#endif
+    for (i = 0; i < k_test_size * 2; ++i) {
         uint32_t        from_idx = rindexes[i % k_test_size] % k_test_size;
         test_key_base_t from_k   = keys[from_idx];
         keys[from_idx]           = keys[i % k_test_size];
         keys[i % k_test_size]    = from_k;
     }
+#if test_string
+    for (i = 0; i < k_test_size; ++i) {
+        char *   dup_s;
+        uint32_t len;
+        len   = keys[i].slen;
+        dup_s = (char *)safe_malloc(len + 1);
+        memcpy(dup_s, keys[i].s, len + 1);
+        keys_dup[i] = (tstr_t){ len, dup_s };
+    }
+
+#else
     memcpy(keys_dup, keys, k_test_size * sizeof(test_key_base_t));
+#endif
     safe_sfree(rindexes, k_test_size * sizeof(uint32_t));
 
     *keys_out     = keys;
@@ -723,7 +805,7 @@ test_namer(test_ief_rand)(uint32_t keep_small) {
     uint32_t          i;
     test_key_base_t * keys, *keys_dup;
     test_val_base_t * vals;
-    bool *            state          = (bool *)safe_zalloc(k_test_size);
+    bool_t *          state          = (bool_t *)safe_zalloc(k_test_size);
     uint32_t *        rindexes       = make_true_rand32_buffer(k_test_size * 2);
     uint32_t *        rindexes_begin = rindexes;
 
@@ -909,6 +991,8 @@ test_namer(runall)(void) {
     return 0;
 }
 
+#undef test_hashret_get_hashval
+#undef test_hashret_t
 #undef test_table_t
 #undef test_init
 #undef test_init_sz
@@ -944,7 +1028,7 @@ test_namer(runall)(void) {
 #undef test_find_ret_t
 #undef test_erase_ret_t
 
-
+#undef test_string
 #undef test_key_t
 #undef test_key_base_t
 #undef test_val_t
@@ -967,3 +1051,6 @@ test_namer(runall)(void) {
 #undef test_ec_assert
 #undef test_ec_map_assert
 #undef HASHTABLE_H
+#undef test_pass_key_extract_key
+#undef test_rehash
+#undef test_pass_key_t

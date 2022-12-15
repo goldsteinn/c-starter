@@ -11,7 +11,7 @@
 #include "util/error-util.h"
 #include "util/macro.h"
 #include "util/stack-util.h"
-
+#include "util/inline-math.h"
 #define PAGE_SIZE 4096
 
 #define safe_calloc(n, sz) I_safe_calloc(n, sz, I_ERR_ARGS)
@@ -25,6 +25,8 @@
     I_safe_aligned_zalloc(alignment, sz, I_ERR_ARGS)
 
 #define safe_realloc(p, sz) I_safe_realloc(p, sz, I_ERR_ARGS)
+#define safe_aligned_realloc(alignment, p, sz_old, sz_new)                     \
+    I_safe_aligned_realloc(alignment, p, sz_old, sz_new, I_ERR_ARGS)
 #define safe_srealloc(p, sz_old, sz_new)                                       \
     I_safe_srealloc(p, sz_old, sz_new, I_ERR_ARGS)
 #define safe_malloc(sz) I_safe_malloc(sz, I_ERR_ARGS)
@@ -159,7 +161,6 @@ static MALLOC_FUNC_COMMON(3)
     memset_c(AGU_T(newp, sz_old), 0, sz_new - sz_old);
     return newp;
 }
-
 static void
 I_safe_free(void * addr) {
     if (NOANALYZE(LIKELY(addr != NULL) && !stack_contains(addr), 1)) {
@@ -174,6 +175,34 @@ I_safe_sfree(void * addr, uint64_t sz) {
         sfree_c(addr, sz);
     }
 }
+static ALIGNED_ALLOC_FUNC(1, 4)
+    NONNULL(2, 5, 6) void * I_safe_aligned_realloc(uint64_t alignment,
+                                                   void * restrict p,
+                                                   uint64_t sz_old,
+                                                   uint64_t sz_new,
+                                                   char const * restrict fn,
+                                                   char const * restrict func,
+                                                   uint32_t ln) {
+    void * newp;
+    if (sz_old <= sz_new && (!(CAST(uintptr_t, p) & (alignment - 1)))) {
+        return p;
+    }
+
+    if (stack_contains(p)) {
+        I_die(fn, func, ln, NULL, "Reallocating a stack pointer");
+    }
+
+    newp = I_safe_aligned_alloc(alignment, sz_new, fn, func, ln);
+    if (UNLIKELY(newp == NULL)) {
+        I_errdie(fn, func, ln, NULL, errno, NULL);
+    }
+    memcpy_c(newp, p, MIN(sz_old, sz_new));
+    I_safe_sfree(p, sz_old);
+    return newp;
+}
+
+
+
 
 
 SYS_MALLOC_FUNC(2)

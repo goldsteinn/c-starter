@@ -8,9 +8,13 @@
 
 extern __thread uint64_t I_rseed_;
 
-uint64_t   true_rand64(void);
-uint32_t   true_rand32(void);
-void       true_randomize_buffer(void * buf, uint64_t buf_sz);
+
+uint64_t true_rand64(void);
+uint32_t true_rand32(void);
+void     true_randomize_buffer(void * buf, uint64_t buf_sz);
+
+uint8_t *  make_true_rand8_buffer(uint64_t nitems);
+uint16_t * make_true_rand16_buffer(uint64_t nitems);
 uint32_t * make_true_rand32_buffer(uint64_t nitems);
 uint64_t * make_true_rand64_buffer(uint64_t nitems);
 

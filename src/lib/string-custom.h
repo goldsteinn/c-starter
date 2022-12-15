@@ -6,6 +6,7 @@
 
 #include "util/attrs.h"
 #include "util/common.h"
+#include "util/types.h"
 
 #define bcopy_c      bcopy
 #define bzero_c      bzero
@@ -72,16 +73,26 @@
 #define wmempcpy_c   wmempcpy
 #define wmemset_c    wmemset
 
-static ALWAYS_INLINE int32_t
-memcmpeq_c(uint8_t const * s1, uint8_t const * s2, size_t n) {
+static ALWAYS_INLINE bool_t
+memcmpeq_c(void const * s1, void const * s2, size_t n) {
 #if I_glibc_version_ge(2, 35)
     if (const_condition(n <= 64)) {
         return !!memcmp(s1, s2, n);
     }
-    return __memcmpeq(s1, s2, n);
+    return !!__memcmpeq(s1, s2, n);
 #else
     return !!memcmp(s1, s2, n);
 #endif
+}
+
+static ALWAYS_INLINE bool_t
+strcmpeq_c(char const * s1, char const * s2) {
+    return !!strcmp(s1, s2);
+}
+
+static ALWAYS_INLINE bool_t
+strncmpeq_c(char const * s1, char const * s2, size_t n) {
+    return !!strncmp(s1, s2, n);
 }
 
 

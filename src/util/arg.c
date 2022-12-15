@@ -523,10 +523,10 @@ kind2str(ArgKind k) {
 }
 
 /* return true if has help.  */
-static PURE_FUNC bool
+static PURE_FUNC bool_t
 checkArgDef(arg_parser_t const * restrict ap,
             arg_defs_t const * restrict def,
-            bool main) {
+            bool_t main) {
     /* optional/help come before postional before rest.  */
     uint32_t             state   = KindOption;
     arg_option_t const * desc    = def->args;
@@ -558,7 +558,7 @@ checkArgDef(arg_parser_t const * restrict ap,
 
 static void
 checkarg_parser_t(arg_parser_t const * ap) {
-    bool                      hashelp = false;
+    bool_t                    hashelp = false;
     arg_parser_node_t const * apn;
     for (apn = ap->parsers; apn; apn = apn->next) {
         hashelp |= checkArgDef(ap, apn->parser, apn->main);
@@ -645,7 +645,7 @@ parseArguments(arg_parser_t * restrict ap, int32_t argc, char * const * argv) {
     char * const *            argv_end = argv + argc;
     arg_parser_node_t const * apn;
     int32_t                   i, j, base_arg, base_dest_offset;
-    bool                      opts_possible;
+    bool_t                    opts_possible;
     arg_option_t *            desc;
     /* get program name and commandline as a string.  */
     pname = argv[0];
@@ -676,8 +676,8 @@ parseArguments(arg_parser_t * restrict ap, int32_t argc, char * const * argv) {
         vprint("%d -> [%s]\n", i, arg);
         if (arg[0] == '-') {
             /* Handle options.  */
-            bool ok       = false;
-            bool notfound = true;
+            bool_t ok       = false;
+            bool_t notfound = true;
             for (apn = ap->parsers; notfound && apn; apn = apn->next) {
                 desc = apn->parser->args;
                 for (j = 0; notfound && (desc[j].kind != KindEnd); j++) {

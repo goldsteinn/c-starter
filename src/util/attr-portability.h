@@ -31,6 +31,24 @@
 # define I_attr_may_alias
 #endif
 
+#if I_has_attr(alias)
+# define I_attr_alias(...) __attribute__((alias (__VA_ARGS__)))
+#else
+# define I_attr_alias(...)
+#endif
+
+#if I_has_attr(copy)
+# define I_attr_copy(...) __attribute__((copy (__VA_ARGS__)))
+#else
+# define I_attr_copy
+#endif
+
+#if I_has_attr(copy) && I_has_attr(alias)
+#define I_attr_func_alias(...) __attribute__((alias(__VA_ARGS__), copy(__VA_ARGS__)))
+#else
+
+#endif
+
 #if I_has_attr(malloc)
 # define I_attr_malloc __attribute__((malloc))
 # ifdef __clang__

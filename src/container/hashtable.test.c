@@ -2,6 +2,7 @@
 
 #include "util/inline-math.h"
 #include "util/memory-util.h"
+#include "util/rand-stream.h"
 #include "util/random.h"
 #include "util/types.h"
 
@@ -26,6 +27,18 @@ enum { TEST_SIZE = 1 << 18 };
 typedef struct b16 {
     uint8_t bytes_[16];
 } b16_t; /* NOLINT(altera-struct-pack-align) */
+
+
+#define pptr_as_pstr   1
+#define pptr_meta_bits 16
+#define pptr_name      pstr_16
+#include "pptr.h"
+
+#define pptr_as_pstr   1
+#define pptr_meta_bits 8
+#define pptr_name      pstr_8
+#include "pptr.h"
+
 
 #define test_key_t   uint32_t
 #define test_hash(x) xxhashT(x)
@@ -394,7 +407,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                  \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps16_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -418,7 +431,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps16_nt_e
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -443,7 +456,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps16_2_nt_e
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -467,7 +480,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps16_2_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -490,7 +503,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps8_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -515,7 +528,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps8_2_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -539,7 +552,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps4_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -563,7 +576,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps4_2_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -586,7 +599,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps5_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -610,7 +623,7 @@ typedef struct b16 {
     ({                                                                         \
         uint64_t I_tmp_hv_;                                                    \
         __builtin_memcpy(&I_tmp_hv_, (const uint8_t *)(x), sizeof(uint64_t));  \
-        xxhashT(I_tmp_hv_);                                                     \
+        xxhashT(I_tmp_hv_);                                                    \
     })
 #define test_name   k8ps5_2_nt
 #define HASHTABLE_H "rhi-hashtable.h"
@@ -860,11 +873,140 @@ typedef struct b16 {
 #define HASHTABLE_H     "rhi-hashtable.h"
 #include "hashtable.test.h"
 
+#define test_erase_copy
+#define test_null_invalid             1
+#define test_string                   1
+#define test_pass_key(kp)             ((kp).s)
+#define test_key_t                    char const *
+#define test_key_base_t               tstr_t
+#define test_spare_bits               8
+#define test_key_equals(rkey, tkey)   (!strcmp(rkey, tkey))
+#define test_key_eq(tbl_key, pk, ...) (!!strcmp(tbl_key, pk))
+#define test_hash(x)                  xxhash(x, strlen(x))
+#define test_name                     str_s8_nt_e
+#define HASHTABLE_H                   "rhi-hashtable.h"
+
+#include "hashtable.test.h"
+
+#define test_erase_copy
+#define test_null_invalid                  1
+#define test_string                        1
+#define test_pass_key_t                    tstr_t
+#define test_pass_key_extract_key(pk, ...) (pk).s
+#define test_pass_key(kp)                  kp
+#define test_key_t                         char const *
+#define test_key_base_t                    tstr_t
+#define test_spare_bits                    8
+#define test_key_equals(rkey, tkey)        (!strcmp(rkey, (tkey).s))
+#define test_key_eq(tbl_key, pk, ...)      (!!strcmp(tbl_key, (pk).s))
+
+#define test_hash(x)   xxhash((x).s, (x).slen)
+#define test_rehash(x) xxhash(x, strlen_c(x))
+#define test_name      str_s8_nt_e_pk
+#define HASHTABLE_H    "rhi-hashtable.h"
+
+#include "hashtable.test.h"
+
+#define test_erase_copy
+#define test_null_invalid                  1
+#define test_string                        1
+#define test_pass_key_t                    tstr_t
+#define test_pass_key_extract_key(pk, ...) (pk).s
+#define test_pass_key(kp)                  kp
+#define test_key_t                         char const *
+#define test_key_base_t                    tstr_t
+#define test_key_equals(rkey, tkey)        (!strcmp(rkey, (tkey).s))
+#define test_key_eq(tbl_key, pk, ...)      (!!strcmp(tbl_key, (pk).s))
+
+#define test_hash(x)   xxhash((x).s, (x).slen)
+#define test_rehash(x) xxhash(x, strlen_c(x))
+#define test_name      str_nt_e_pk
+#define HASHTABLE_H    "rh-hashtable.h"
+
+#include "hashtable.test.h"
+
+
+#define test_erase_copy
+#define test_null_invalid             1
+#define test_string                   1
+#define test_pass_key(kp)             ((kp).s)
+#define test_key_t                    char const *
+#define test_key_base_t               tstr_t
+#define test_key_equals(rkey, tkey)   (!strcmp(rkey, tkey))
+#define test_key_eq(tbl_key, pk, ...) (!!strcmp(tbl_key, pk))
+#define test_hash(x)                  xxhash(x, strlen(x))
+#define test_name                     str_nt_e
+#define HASHTABLE_H                   "rh-hashtable.h"
+
+#include "hashtable.test.h"
+
+
+#define test_null_invalid                 1
+#define test_string                       1
+#define test_pass_key(kp)                 ((kp).s)
+#define test_pass_key_t                   char const *
+#define test_pass_key_extract_key(pk, hr) pstr_16_create_len((pk), (hr).slen_)
+#define test_key_t                        pstr_t
+#define test_key_base_t                   tstr_t
+#define test_key_equals(rkey, tkey)       (!strcmp(pstr_16_str(rkey), tkey))
+#define test_key_eq(tbl_key, pk, hr)                                           \
+    (!!pstr_16_strcmpeq((tbl_key), pstr_16_create_len(pk, (hr).slen_)))
+#define test_hash(x)                xxhash_str(x)
+#define test_rehash(x)              xxhash(pstr_16_str(x), pstr_16_len(x))
+#define test_hashret_t              str_hash64_result_t
+#define test_hashret_get_hashval(x) ((x).hv_)
+#define test_name                   pstr_16_rh
+#define HASHTABLE_H                 "rh-hashtable.h"
+
+#include "hashtable.test.h"
+
+
+#define test_null_invalid                 1
+#define test_string                       1
+#define test_pass_key(kp)                 ((kp).s)
+#define test_pass_key_t                   char const *
+#define test_pass_key_extract_key(pk, hr) pstr_8_create_len((pk), (hr).slen_)
+#define test_key_t                        pstr_t
+#define test_key_base_t                   tstr_t
+#define test_key_equals(rkey, tkey)       (!strcmp(pstr_8_str(rkey), tkey))
+#define test_key_eq(tbl_key, pk, hr)                                           \
+    (!!pstr_8_strcmpeq((tbl_key), pstr_8_create_len(pk, (hr).slen_)))
+#define test_hash(x)                xxhash_str(x)
+#define test_rehash(x)              xxhash(pstr_8_str(x), pstr_8_len(x))
+#define test_hashret_t              str_hash64_result_t
+#define test_hashret_get_hashval(x) ((x).hv_)
+#define test_name                   pstr_8_rh
+#define HASHTABLE_H                 "rh-hashtable.h"
+
+#include "hashtable.test.h"
+
+
+#define test_null_invalid                 1
+#define test_string                       1
+#define test_spare_bits                   8
+#define test_pass_key(kp)                 ((kp).s)
+#define test_pass_key_t                   char const *
+#define test_pass_key_extract_key(pk, hr) pstr_8_create_len((pk), (hr).slen_)
+#define test_key_t                        pstr_t
+#define test_key_base_t                   tstr_t
+#define test_key_equals(rkey, tkey)       (!strcmp(pstr_8_str(rkey), tkey))
+#define test_key_eq(tbl_key, pk, hr)                                           \
+    (!!pstr_8_strcmpeq((tbl_key), pstr_8_create_len(pk, (hr).slen_)))
+#define test_hash(x)                xxhash_str(x)
+#define test_rehash(x)              xxhash(pstr_8_str(x), pstr_8_len(x))
+#define test_hashret_t              str_hash64_result_t
+#define test_hashret_get_hashval(x) ((x).hv_)
+#define test_name                   pstr_8_rhi
+#define HASHTABLE_H                 "rhi-hashtable.h"
+
+#include "hashtable.test.h"
+
 
 #define RH_NAMES                                                               \
     k4i, k4i_nt, k8pe_nt, k8p_nt, k4_nt, k4v4_nt, k4v4e_nt, k16v8_nt, k8p,     \
         k8pe, k4v4e, k1v16e, k16e, k8pv8e, k8pv8pe, k1v1, k4, k4v4, k2, k1,    \
-        k16v8, k8pv8, k8pv8p, k4p, k1v16, k1v4, k2v1
+        k16v8, k8pv8, k8pv8p, k4p, k1v16, k1v4, k2v1, str_nt_e, str_nt_e_pk,   \
+        pstr_16_rh, pstr_8_rh
 #define RHI_NAMES                                                              \
     k4s8v4_2_e, k4s4v4_2_nt_e, k8ps16_nt_e, k8ps16_2_nt_e, k4s10_nt_e,         \
         k4s8v4_nt_e, k2s5v2e, k4s4_2_nt_e, k8s10e, k4s10, k4s4, k8s10, k8s4,   \
@@ -872,7 +1014,7 @@ typedef struct b16 {
         k8ps4_2_nt, k8ps5_nt, k8ps5_2_nt, k4s10_nt, k4s5_nt, k4s4_nt, k4s8_nt, \
         k4s8v4_nt, k4s8v4, k2s5v2, k2s5v4, k2s4v4, k4s10_2_nt, k4s5_2_nt,      \
         k4s4_2_nt, k4s8_2_nt, k4s8v4_2_nt, k4s4v4_2_nt, k4s8v4_2, k4s10_2,     \
-        k4s4_2
+        k4s4_2, str_s8_nt_e, str_s8_nt_e_pk, pstr_8_rhi
 
 int32_t test_hashtable(void);
 

@@ -7,6 +7,8 @@
 
 __thread uint64_t I_rseed_;
 
+
+
 uint64_t
 true_rand64() {
     uint64_t rand_out;
@@ -26,6 +28,20 @@ true_randomize_buffer(void * buf, uint64_t buf_sz) {
     int64_t ret = getrandom(buf, buf_sz, 0);
     err_assert(ret > 0 && CAST(uint64_t, ret) == buf_sz, "%lu != %lu\n", ret,
                buf_sz);
+}
+
+uint8_t *
+make_true_rand8_buffer(uint64_t nitems) {
+    uint8_t * buf = (uint8_t *)safe_malloc(nitems * sizeof(uint8_t));
+    true_randomize_buffer(buf, nitems * sizeof(uint8_t));
+    return buf;
+}
+
+uint16_t *
+make_true_rand16_buffer(uint64_t nitems) {
+    uint16_t * buf = (uint16_t *)safe_malloc(nitems * sizeof(uint16_t));
+    true_randomize_buffer(buf, nitems * sizeof(uint16_t));
+    return buf;
 }
 
 uint32_t *
@@ -55,3 +71,4 @@ randomize_buffer(uint8_t * buf, uint64_t buf_sz) {
     r64 = rand64c(seed);
     __builtin_memcpy(buf + i, &r64, buf_sz - i);
 }
+

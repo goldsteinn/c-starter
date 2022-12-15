@@ -12,9 +12,11 @@
 #include "util/portability.h"
 
 #ifndef __cplusplus
-typedef _Bool bool;
-static const bool false = ((bool)0);
-static const bool true  = ((bool)1);
+typedef _Bool bool_t;
+static const bool_t false = ((bool_t)0);
+static const bool_t true  = ((bool_t)1);
+#else
+typedef bool bool_t;
 #endif
 
 typedef signed char      signed_char;
@@ -47,8 +49,9 @@ typedef unsigned_long *      unsigned_longp;
 typedef unsigned_long_long * unsigned_long_longp;
 
 typedef long_long * long_longp;
+typedef void * voidp;
 
-#define MISC_TYPES bool
+#define MISC_TYPES bool_t
 #define SIGNED_INT_TYPES                                                       \
     char, signed_char, signed_short, signed_int, signed_long, signed_long_long
 #define SIGNED_FLOAT_TYPES float, double, long_double
@@ -121,11 +124,11 @@ typedef
 
 template<typename T>
 struct I_type_info {
-    static constexpr bool is_bool =
-        std::is_same<T, bool>::value || std::is_same<T, safe_bool>::value;
-    static constexpr bool is_boolp =
-        std::is_same<T, bool *>::value || std::is_same<T, safe_bool *>::value;
-    static constexpr bool is_void = std::is_void<T>::value;
+    static constexpr bool_t is_bool =
+        std::is_same<T, bool_t>::value || std::is_same<T, safe_bool_t>::value;
+    static constexpr bool_t is_boolp = std::is_same<T, bool_t *>::value ||
+                                       std::is_same<T, safe_bool_t *>::value;
+    static constexpr bool_t is_void = std::is_void<T>::value;
 
     template<typename Q = T>
     using I_to_signed_T =
@@ -246,7 +249,7 @@ struct I_int_of_size {
          std::is_unsigned<get_type(x)>::value)
 
 # define IS_FLOAT_BASE(x) std::is_floating_point<get_type(x)>::value
-# define IS_BOOL_BASE(x)  std::is_same<get_type(x), bool>::value
+# define IS_BOOL_BASE(x)  std::is_same<get_type(x), bool_t>::value
 # define IS_INT_BASE(x)                                                        \
         (!IS_BOOL_BASE(x) && std::is_integral<get_type(x)>::value)
 
@@ -277,7 +280,8 @@ struct I_int_of_size {
         (__builtin_classify_type(I_AS_NOT_VOID(x)) == 5 /* 5 is ptr type.  */)
 
 
-# define DEFAULT_VALUE(T) (choose_const_expr(I_is_same_type(T, void), 0, (T){0}))
+# define DEFAULT_VALUE(T)                                                      \
+        (choose_const_expr(I_is_same_type(T, void), 0, (T){ 0 }))
 
 # define sizeof_deref(x)        sizeof(I_AS_NOT_VOID(*(x)))
 # define I_is_same_type(T0, T1) __builtin_types_compatible_p(T0, T1)
@@ -366,7 +370,7 @@ struct I_int_of_size {
 
 #define DEFAULT_HEX_FMT_TBL(before, x, after)             \
     Generic((x),                                \
-            bool                       : before "0x%x" after,     \
+            bool_t                     : before "0x%x" after,     \
             unsigned_char              : before "0x%hhx" after,     \
             unsigned_short             : before "0x%hx" after,     \
             unsigned_int               : before "0x%x" after,     \
@@ -387,7 +391,7 @@ struct I_int_of_size {
 
 #define GET_TYPENAME(x)             \
     Generic((x),                                \
-            bool                       :  "bool",      \
+            bool_t                     :  "bool_t",      \
             unsigned_char              :  "unsigned_char",     \
             unsigned_short             :  "unsigned_short",     \
             unsigned_int               :  "unsigned_int",     \
@@ -407,7 +411,7 @@ struct I_int_of_size {
 
 #define DEFAULT_FMT_TBL(before, x, after)            \
     Generic((x),                                \
-            bool                       : before "%u" after,     \
+            bool_t                     : before "%u" after,     \
             unsigned_char              : before "%hhu" after,     \
             unsigned_short             : before "%hu" after,     \
             unsigned_int               : before "%u" after,     \
@@ -427,7 +431,7 @@ struct I_int_of_size {
 
 #define TYPEOF_MAX_0(x)                                 \
     Generic((x),                                        \
-            bool                       : 1,             \
+            bool_t                     : 1,             \
             unsigned_char              : UCHAR_MAX,     \
             unsigned_short             : USHRT_MAX,     \
             unsigned_int               : UINT_MAX,      \
@@ -446,14 +450,14 @@ struct I_int_of_size {
 
 #define TYPEOF_MAX_1(x)                                 \
     Generic((x),                                        \
-            safe_bool                  : 1,             \
+            safe_bool_t                  : 1,             \
             default                    : 0)
 
 #define TYPEOF_MAX(x) (TYPEOF_MAX_0(x) == 0 ? TYPEOF_MAX_1(x) : TYPEOF_MAX_0(x))
 
 #define TYPEOF_MIN(x)                                   \
     Generic((x),                                        \
-            bool                       : 0,             \
+            bool_t                     : 0,             \
             unsigned_char              : 0,             \
             unsigned_short             : 0,             \
             unsigned_int               : 0,             \
@@ -510,11 +514,11 @@ struct I_int_of_size {
 
 #define IS_BOOL_BASE_0(x)                       \
     Generic((x),                                \
-            bool                       : 1,     \
+            bool_t                     : 1,     \
             default                    : 0)
 #define IS_BOOL_BASE_1(x)                       \
     Generic((x),                                \
-            safe_bool                  : 1,     \
+            safe_bool_t                : 1,     \
             default                    : 0)
 #define IS_BOOL_BASE(x) (IS_BOOL_BASE_0(x) || IS_BOOL_BASE_1(x))
 

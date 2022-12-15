@@ -25,7 +25,7 @@ cvt_to_dbl(uint8_t const * mem,
         case 1: {
             die_assert(!is_fp_based);
             if (is_bool) {
-                return I_cvt_to_dbl(bool, mem);
+                return I_cvt_to_dbl(bool_t, mem);
             }
             else if (is_unsigned) {
                 return I_cvt_to_dbl(uint8_t, mem);

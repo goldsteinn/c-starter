@@ -98,7 +98,7 @@ enum {
 
 #define run_bench(name)                                                        \
     vvvprint("Running -> [%6u/%4u]: %s\n", trials, i, V_TO_STR(name));         \
-    (results = I_hl_namer(name, bench)(i, ht_type_size, trials, results));
+    (results = I_cl_namer(name, bench)(i, ht_type_size, trials, results));
 
 
 void * bench_hashtable(void * bench_args);

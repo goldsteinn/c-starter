@@ -14,10 +14,10 @@ typedef hl_key_t rh_namer(find_ret_t);
 
 #  if hl_trivial_compare
 #   define rh_get_valid_success_entry(usr_key, mkey, kvp)                      \
-                I_hl_choose_expr(rh_key_is_entry, (usr_key), kvp)
+                I_cl_choose_expr(rh_key_is_entry, (usr_key), kvp)
 #  else
 #   define rh_get_valid_success_entry(usr_key, mkey, kvp)                      \
-                I_hl_choose_expr(rh_key_is_entry, rh_mkey_get_key(mkey), kvp)
+                I_cl_choose_expr(rh_key_is_entry, rh_mkey_get_key(mkey), kvp)
 #  endif
 
 #  define rh_get_valid_fail_entry(usr_key, mkey, kvp)                          \
@@ -40,7 +40,7 @@ typedef rh_kvp_t * rh_namer(find_ret_t);
 
 typedef struct rh_namer(insert_ret) {
 #  if hl_insert_return_result
-    I_hl_bool_t result_;
+    I_cl_bool_t result_;
 #  endif
 #  if hl_insert_return_entry
     rh_find_ret_t entry_;
@@ -67,12 +67,12 @@ rh_namer(insert_ret_t);
 
 #  define rh_insert_make_success_return(usr_key, mkey, kvp)                    \
             rh_internal_insert_make_return(                                    \
-                hl_operation_success,                                          \
+                cl_operation_success,                                          \
                 rh_get_valid_success_entry(usr_key, mkey, kvp))
 
 #  define rh_insert_make_fail_return(usr_key, mkey, kvp)                       \
             rh_internal_insert_make_return(                                    \
-                hl_operation_failure,                                          \
+                cl_operation_failure,                                          \
                 rh_get_valid_fail_entry(usr_key, mkey, kvp))
 
 
@@ -111,7 +111,7 @@ rh_namer(ekvp_t);
 
 typedef struct rh_namer(erase_ret) {
 #  if hl_erase_return_result
-    I_hl_bool_t result_;
+    I_cl_bool_t result_;
 #  endif
 #  if hl_erase_return_copy
     rh_ekvp_t entry_;
@@ -143,11 +143,11 @@ rh_namer(erase_ret_t);
 
 #  define rh_erase_make_success_return(usr_key, mkey, kvp)                     \
             rh_internal_erase_make_return(                                     \
-                hl_operation_success,                                          \
+                cl_operation_success,                                          \
                 rh_get_valid_erase_entry(usr_key, mkey, kvp, (kvp)->val_))
 
 #  define rh_erase_make_fail_return(...)                                       \
-            rh_internal_erase_make_return(hl_operation_failure, {})
+            rh_internal_erase_make_return(cl_operation_failure, {})
 
 # else
 #  define rh_erase_make_success_return(...)
